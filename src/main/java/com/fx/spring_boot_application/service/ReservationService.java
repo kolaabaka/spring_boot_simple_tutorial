@@ -88,7 +88,8 @@ public class ReservationService {
                 reservationFromBd.getReservationStatus()));
         }
 
-        if (!repository.findByIdAndDate(id, reservationFromBd.getStartDate(), reservationFromBd.getEndDate(), reservationFromBd.getRoomId()).isEmpty()) {
+        if (!repository.findConflictingReservations(id, reservationFromBd.getStartDate(), reservationFromBd.getEndDate()
+            , reservationFromBd.getRoomId(), ReservationStatus.APPROVED).isEmpty()) {
             throw new IllegalStateException("Reservation date conflict");
         }
 
