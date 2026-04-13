@@ -5,8 +5,8 @@ import com.fx.spring_boot_application.dto.ReservationStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.rmi.NoSuchObjectException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +21,13 @@ public class ReservationService {
 
     private final Map<Long, Reservation> reservationMap = new HashMap<>();
     private final AtomicLong id = new AtomicLong(1);
+
+    {
+        reservationMap.put(1L, new Reservation(
+            1L, 13L, 2L, LocalDate.now(),
+            LocalDate.now().plusDays(2), ReservationStatus.PENDING
+        ));
+    }
 
     public Reservation getReservationById(Long id) throws NoSuchObjectException {
         if (!reservationMap.containsKey(id)) {
@@ -47,7 +54,7 @@ public class ReservationService {
         return reservationToSave;
     }
 
-    public Reservation updateReservation(Long id, Reservation reservation) throws AccountNotFoundException {
+    public Reservation updateReservation(Long id, Reservation reservation) {
         if (!reservationMap.containsKey(id)) {
             throw new NoSuchElementException(String.format("No reservation with %s", id));
         }
@@ -82,12 +89,21 @@ public class ReservationService {
                 reservationFromBd.reservationStatus()));
         }
 
-        if (!isReservationConflict(reservationFromBd)) {
+        if (isReservationConflict(reservationFromBd)) {
             throw new IllegalStateException("Reservation date conflict");
         }
 
-        reservationMap.put(id, reservationFromBd);
-        return reservationFromBd;
+        var reservationNewApproved = new Reservation(
+            id,
+            reservationFromBd.userId(),
+            reservationFromBd.roomId(),
+            reservationFromBd.startDate(),
+            reservationFromBd.endDate(),
+            ReservationStatus.APPROVED
+        );
+
+        reservationMap.put(id, reservationNewApproved);
+        return reservationNewApproved;
     }
 
     private boolean isReservationConflict(Reservation reservation) {
