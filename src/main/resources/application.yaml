@@ -1,3 +1,11 @@
 spring:
   application:
     name: spring-boot-simple-tutorial
+  datasource:
+    url: "jdbc:postgresql://localhost:5555/hiber"
+    username: "hiber"
+    password: "hiber"
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update

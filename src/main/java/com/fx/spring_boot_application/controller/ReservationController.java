@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.rmi.NoSuchObjectException;
 import java.util.List;
 
@@ -46,7 +45,7 @@ public class ReservationController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Reservation> updateReservation(@PathVariable Long id,
-                                                         @RequestBody Reservation reservation) throws AccountNotFoundException {
+                                                         @RequestBody Reservation reservation) {
         var response = reservationService.updateReservation(id, reservation);
 
         return ResponseEntity

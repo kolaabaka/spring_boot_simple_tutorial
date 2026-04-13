@@ -1,5 +1,7 @@
 package com.fx.spring_boot_application.dto;
 
+import com.fx.spring_boot_application.entity.ReservationEntity;
+
 import java.time.LocalDate;
 
 public record Reservation(
@@ -40,6 +42,17 @@ public record Reservation(
             this.startDate(),
             this.endDate(),
             ReservationStatus.APPROVED
+        );
+    }
+
+    public static Reservation reservationFromEntity(ReservationEntity reservation){
+        return new Reservation(
+            reservation.getId(),
+            reservation.getUserId(),
+            reservation.getRoomId(),
+            reservation.getStartDate(),
+            reservation.getEndDate(),
+            reservation.getReservationStatus()
         );
     }
 }
