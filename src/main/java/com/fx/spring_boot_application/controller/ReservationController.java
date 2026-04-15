@@ -2,6 +2,7 @@ package com.fx.spring_boot_application.controller;
 
 import com.fx.spring_boot_application.dto.Reservation;
 import com.fx.spring_boot_application.service.ReservationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {
+    public ResponseEntity<Reservation> createReservation(@RequestBody @Valid Reservation reservation) {
         var response = reservationService.createReservation(reservation);
 
         return ResponseEntity
@@ -45,7 +46,7 @@ public class ReservationController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Reservation> updateReservation(@PathVariable Long id,
-                                                         @RequestBody Reservation reservation) {
+                                                         @RequestBody @Valid Reservation reservation) {
         var response = reservationService.updateReservation(id, reservation);
 
         return ResponseEntity

@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static com.fx.spring_boot_application.dto.Reservation.reservationFromEntity;
+import static com.fx.spring_boot_application.dto.ReservationStatus.APPROVED;
+import static com.fx.spring_boot_application.dto.ReservationStatus.CANCELED;
 
 @Service
 @RequiredArgsConstructor
@@ -34,11 +36,11 @@ public class ReservationService {
     }
 
     public Reservation createReservation(Reservation reservation) {
-        if (reservation.id() != null) {
-            throw new IllegalArgumentException("ID should be empty");
-        }
         if (reservation.reservationStatus() != null) {
             throw new IllegalArgumentException("Status should be empty");
+        }
+        if (reservation.endDate().isAfter(reservation.startDate())) {
+            throw new IllegalArgumentException("End date must be after start date earlier 1 day");
         }
 
         var reservationEntity = ReservationEntity.reservationFromDto(reservation, ReservationStatus.PENDING);
@@ -49,11 +51,14 @@ public class ReservationService {
     }
 
     public Reservation updateReservation(Long id, Reservation reservation) {
+        if (reservation.endDate().isAfter(reservation.startDate())) {
+            throw new IllegalArgumentException("End date must be after start date earlier 1 day");
+        }
         var reservationToUpdate = repository.findById(id)
             .orElseThrow(() -> new NoSuchElementException(String.format("No reservation with %s", id)));
 
         if (reservationToUpdate.getReservationStatus().equals(ReservationStatus.APPROVED)
-            || reservationToUpdate.getReservationStatus().equals(ReservationStatus.CANCELED)) {
+            || reservationToUpdate.getReservationStatus().equals(CANCELED)) {
             throw new IllegalStateException(String.format("Reservation in status %s cannot be update",
                 reservationToUpdate.getReservationStatus()));
         }
@@ -73,8 +78,10 @@ public class ReservationService {
     }
 
     public void deleteReservation(Long id) {
-        if (!repository.existsById(id)) {
-            throw new NoSuchElementException(String.format("No reservation with %s", id));
+        var reservationFomDb = repository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("No reservation with %s", id)));
+        if (reservationFomDb.getReservationStatus().equals(CANCELED) || reservationFomDb.getReservationStatus().equals(APPROVED)) {
+            throw new IllegalStateException(String.format("Reservation in status %s cannot be delete",
+                reservationFomDb.getReservationStatus()));
         }
         repository.deleteById(id);
     }
