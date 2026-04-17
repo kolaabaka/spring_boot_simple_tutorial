@@ -39,7 +39,7 @@ public class ReservationService {
         if (reservation.reservationStatus() != null) {
             throw new IllegalArgumentException("Status should be empty");
         }
-        if (reservation.endDate().isAfter(reservation.startDate())) {
+        if (reservation.endDate().isBefore(reservation.startDate())) {
             throw new IllegalArgumentException("End date must be after start date earlier 1 day");
         }
 
@@ -51,7 +51,7 @@ public class ReservationService {
     }
 
     public Reservation updateReservation(Long id, Reservation reservation) {
-        if (reservation.endDate().isAfter(reservation.startDate())) {
+        if (reservation.endDate().isBefore(reservation.startDate())) {
             throw new IllegalArgumentException("End date must be after start date earlier 1 day");
         }
         var reservationToUpdate = repository.findById(id)
